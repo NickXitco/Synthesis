@@ -1,6 +1,6 @@
 let osc1;
 let osc2;
-let playing = true;
+let playing = false;
 
 let maxY = 0;
 let minY = 10000;
@@ -13,34 +13,35 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     background(250, 170, 0);
 
-    /*
     osc1 = new p5.Oscillator();
     osc1.setType('sine');
     osc1.freq(440);
     osc1.amp(0);
     osc1.start();
-     */
 
     osc2 = new p5.Oscillator();
-    osc2.setType('sawtooth');
+    osc2.setType('sine');
     osc2.freq(220);
     osc2.amp(0);
     osc2.start();
 
     fft = new p5.FFT(1, SAMPLE_RATE / 1024);
 
-    slider1 = createSlider(20, 1760, 440,  0);
-    slider2 = createSlider(20, 1760, 220,  0);
+    slider1 = createSlider(20, 1760, 440,  10);
+    slider2 = createSlider(20, 1760, 220,  10);
     slider1.position(50, 10);
     slider2.position(50, 50);
 }
 
 function draw() {
-    //osc1.freq(slider1.value());
+    osc1.freq(slider1.value());
     osc2.freq(slider2.value());
-
-    if(playing) {
-        background(250, 170, 0);
+    if(!playing) {
+		playing = true;
+        osc1.amp(0.1, 1);
+        osc2.amp(0.1, 1);
+    } else {
+		background(250, 170, 0);
         let waveform = fft.waveform(SAMPLE_RATE, "precise");
 
         noFill();
@@ -53,11 +54,7 @@ function draw() {
             vertex(x, y);
         }
         endShape();
-
-        //osc1.amp(0.1, 1);
-        osc2.amp(0.1, 1);
-    }
-
+	}
 
     fill(255);
     strokeWeight(0);
@@ -69,3 +66,7 @@ function draw() {
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
+
+//This function is needed for Chrome and other browsers that don't allow autoplay
+function mousePressed() { getAudioContext().resume() }
+
